@@ -1,4 +1,4 @@
-Configuration TimeZone 
+Configuration DSCTimeZone 
 {
   Import-DscResource -ModuleName 'ComputerManagementDsc' 
   TimeZone TimeZone
@@ -7,5 +7,5 @@ Configuration TimeZone
     TimeZone         = 'W. Europe Standard Time'
   }   
 }
-TimeZone -OutputPath C:\Temp\TimeZone
-Start-DscConfiguration -Path C:\Temp\TimeZone -ComputerName localhost -Wait -Verbose -Force
+DSCTimeZone -OutputPath C:\Temp\DSCTimeZone
+Start-DscConfiguration -Path C:\Temp\DSCTimeZone -ComputerName localhost -Wait -Verbose -Force
