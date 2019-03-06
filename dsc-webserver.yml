@@ -1,0 +1,41 @@
+#
+# Author:      Javy de Koning @ Amazon Web Services
+# Version:     1.0.0
+# DateCreated: 2019-03-06
+# DateUpdated: 2019-03-06
+#
+---
+schemaVersion: "2.2"
+description: "Run PowerShell Command: Configuring IIS using PowerShell DSC"
+
+mainSteps:
+- action: "aws:runPowerShellScript"
+  name: "WebServer"
+  inputs:
+    runCommand:
+    -  | 
+            Configuration WebServer
+            {    
+              # Import the module that defines custom resources
+              Import-DscResource -Module PSDesiredStateConfiguration
+
+              # Install the IIS role
+              WindowsFeature IIS
+              {
+                Ensure          = 'Present'
+                Name            = 'Web-Server'
+              }
+
+              # Ensure w3svc is running
+              Service w3svc
+              {
+                Name        = 'w3svc'
+                State       = 'Running'
+                StartupType = 'Automatic'
+                DependsOn   = '[WindowsFeature]IIS'
+              }
+            }
+            WebServer -OutputPath C:\Temp\WebServer
+
+            Start-DscConfiguration -Path C:\Temp\WebServer -ComputerName localhost -Wait -Verbose -Force
+...

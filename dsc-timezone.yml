@@ -1,0 +1,28 @@
+#
+# Author:      Javy de Koning @ Amazon Web Services
+# Version:     1.0.0
+# DateCreated: 2019-03-06
+# DateUpdated: 2019-03-06
+#
+---
+schemaVersion: "2.2"
+description: "Run PowerShell Command: Configuring TimeZone using PowerShell DSC"
+
+mainSteps:
+- action: "aws:runPowerShellScript"
+  name: "TimeZone"
+  inputs:
+    runCommand:
+    -  | 
+            Configuration TimeZone 
+            {
+                Import-DscResource -ModuleName 'ComputerManagementDsc' 
+                TimeZone TimeZone
+                {
+                    IsSingleInstance = 'Yes'
+                    TimeZone         = 'W. Europe Standard Time'
+                }   
+            }
+            TimeZone -OutputPath C:\Temp\TimeZone
+            Start-DscConfiguration -Path C:\Temp\TimeZone -ComputerName localhost -Wait -Verbose -Force
+...

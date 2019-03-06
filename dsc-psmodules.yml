@@ -1,0 +1,52 @@
+#
+# Author:      Javy de Koning @ Amazon Web Services
+# Version:     1.0.0
+# DateCreated: 2019-03-06
+# DateUpdated: 2019-03-06
+#
+---
+schemaVersion: "2.2"
+description: "Run PowerShell Command: Configuring services using PowerShell DSC"
+
+mainSteps:
+- action: "aws:runPowerShellScript"
+  name: "example"
+  inputs:
+    runCommand:
+    -  | 
+            Configuration PSModules 
+            {
+                Import-DscResource -name 'PackageManagement','PackageManagementSource' -ModuleName 'PackageManagement'
+                PackageManagementSource SourceRepository
+                {
+                    Ensure             = "Present"
+                    Name               = "MyNuget"
+                    ProviderName       = "Nuget"
+                    SourceUri          = "http://nuget.org/api/v2/"
+                    InstallationPolicy = "Trusted"
+                }
+
+                PackageManagementSource PSGallery
+                {
+                    Ensure             = "Present"
+                    Name               = "psgallery"
+                    ProviderName       = "PowerShellGet"
+                    SourceUri          = "https://www.powershellgallery.com/api/v2/"
+                    InstallationPolicy = "Trusted"
+                }
+
+                $modules = @('ComputerManagementDsc','cChoco')
+                $modules.ForEach({
+                  PackageManagement $_
+                  {
+                    Ensure    = 'present'
+                    Name      = "$_"
+                    Source    = "PSGallery"
+                    DependsOn = "[PackageManagementSource]PSGallery"
+                  }    
+                })
+                
+            }
+            PSModules -OutputPath C:\Temp\PSModules
+            Start-DscConfiguration -Path C:\Temp\PSModules -ComputerName localhost -Wait -Verbose -Force
+...
